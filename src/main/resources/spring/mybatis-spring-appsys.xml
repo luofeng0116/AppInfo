@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:aop="http://www.springframework.org/schema/aop"
+xmlns:tx="http://www.springframework.org/schema/tx"
+xsi:schemaLocation="
+http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/tx
+http://www.springframework.org/schema/tx/spring-tx.xsd
+http://www.springframework.org/schema/aop 
+http://www.springframework.org/schema/aop/spring-aop.xsd
+"> 
+<!-- 调用database.properties文件获取 -->
+<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"> 
+		<property name="locations" value="classpath:database.properties"/>
+	</bean>
+	
+<!-- 加密获取文件 -->
+<!-- <bean class="com.wzj.appsys.util.decode.DecryptPropertyPlaceholderConfigurer">
+	<property name="locations" value="classpath:jdbc.properties"/>
+</bean> -->
+<!-- 配数据连接数据源 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${driver}"/>
+		<property name="url" value="${url}"/>		
+		<property name="username" value="${user}"></property>
+		<property name="password" value="${password}"></property>
+	</bean>	
+	<!-- 配置sessionfactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	<property name="dataSource" ref="dataSource"/>
+	<!--使用到了分页插所以配置这个加载 Mybatis-config.xm文件 -->
+	<property name="configLocation" value="classpath:mybatis/Mybatis-config.xml"/>
+	
+	<!-- 配置SQL语句mpaaer映射文件 -->
+		<property name="mapperLocations">
+			<list>
+				<value>classpath:mapper/**/*.xml</value>
+			</list>
+		</property>
+		<!-- 配别名实体类 -->
+		<property name="typeAliasesPackage" value="com.wzj.appsys.pojo"></property>
+	</bean>
+	
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+		<property name="basePackage" value="com.wzj.appsys.dao"/>
+	</bean>
+	
+		<!-- 自动注入bean的命名规范 (扫描方式)
+		如果接口名称是单个大写字母开头，则把第一个大写字母变小写；
+		 如果当前接口名第一个和第二个字母都为大写，则同接口名相同
+		 -->
+	<!-- 配biz层 -->
+	<!-- <bean id="" class="">
+		<property name="" ref=""/>
+	</bean> -->
+</beans>
